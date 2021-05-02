@@ -1,0 +1,25 @@
+<html>
+    <head>
+        <title>Hello</title>
+        <meta charset="utf-8">
+    </head>
+    <body>
+        <h1>Hello</h1>
+    </body>
+    <script>
+        window.onload = function() {
+            let worker = new Worker('worker.js');
+            let arrayBuf1 = new ArrayBuffer(8);
+            let arrayBuf2 = new ArrayBuffer(8);
+            // worker.postMessage({
+            //     type: 'test',
+            //     arrayBuf: arrayBuf1
+            // }, [arrayBuf1, arrayBuf2]);
+            console.info('array1 length: ' + arrayBuf1.byteLength);
+            console.info('array2 length: ' + arrayBuf2.byteLength);
+            worker.postMessage([arrayBuf1], [arrayBuf1, arrayBuf2]);
+            console.info('array1 length: ' + arrayBuf1.byteLength);
+            console.info('array2 length: ' + arrayBuf2.byteLength);
+       }
+    </script>
+</html>
