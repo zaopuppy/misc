@@ -40,8 +40,8 @@ B
 
 em for short
 
-* em == 0  --> first fail
-* em == 1  --> first success
-* em == 2 --> first success
-* em == 3 --> 
+* em == init distance (0, 0)  --> first fail
+* em == (1, 0)  --> first fail
+* em == (1, 1) --> first success
+* em == (1, 2) --> 
 
