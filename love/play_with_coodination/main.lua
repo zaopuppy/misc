@@ -160,10 +160,11 @@ g_a_current = {5, 5}
 
 function start_or_resume_algorithm()
     if not g_a_co then
-        g_a_co = coroutine.create(dfs)
+        g_a_co = coroutine.create(bfs)
     end
 
-    suc, g_a_current = coroutine.resume(co)
+    resumed, finished, g_a_current, result = coroutine.resume(g_a_co, 9, 5, 0, 0)
+    resumed, finished, g_a_current, result = coroutine.resume(g_a_co)
 end
 
 function draw_alorithm_info()
@@ -194,14 +195,17 @@ function next_pos(x1, y1, x2, y2, marks)
 end
 
 -- (x1, y1) --> (x2, y2)
+-- (finished, coor, result)
 function bfs(x1, y1, x2, y2, marks)
     if not marks then
         marks = {}
     end
 
+    coroutine.yield(false, {x1, y1}, nil)
+
     -- arrived
     if x1 == x2 and y1 == y2 then
-        return true
+        return true, {x1, y1}, true
     end
 
     -- distance 1, never win
@@ -211,11 +215,11 @@ function bfs(x1, y1, x2, y2, marks)
 
     for k, v in ipairs(next_pos(x1, y1, x2, y2, marks)) do
         if bfs(v[1], v[2], x2, y2, marks) then
-            return true
+            return true, {x1, y1}, true
         end
     end
 
-    return false
+    return true, {x1, y1}, false
 end
 
 
