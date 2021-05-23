@@ -180,9 +180,15 @@ function draw_alorithm_info()
         g_pointer_radius, g_pointer_radius)
 end
 
+function calc_em(x1, y1, x2, y2)
+    return (x1-x2)^2 + (y1-y2)^2
+end
+
 -- (x1, y1) --> (x2, y2)
 function next_pos(x1, y1, x2, y2, marks)
-    return {
+    local cur_distance = calc_em(x1, y1, x2, y2)
+    local result = {}
+    local candidates = {
         {x1 +  2, y1 +  1},
         {x1 +  1, y1 +  2},
         {x1 + -2, y1 +  1},
@@ -192,6 +198,12 @@ function next_pos(x1, y1, x2, y2, marks)
         {x1 + -2, y1 + -1},
         {x1 + -1, y1 + -2}
     }
+    for k, v in ipairs(candidates) do
+        if calc_em(v[1], v[2], x2, y2) < cur_distance then
+            table.insert(result, v)
+        end
+    end
+    return result
 end
 
 -- (x1, y1) --> (x2, y2)
