@@ -1,3 +1,3 @@
-love .
+love --console .
 
 PAUSE

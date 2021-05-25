@@ -2,6 +2,8 @@
 -- x axis in horizontal
 -- y axis in vertical
 
+G = {}
+
 -- constant
 g_grid_width = 30
 g_grid_height = 30
@@ -150,30 +152,55 @@ function love.keypressed(key, scancode, isrepeat)
         g_scr_offset_x = g_scr_offset_x + math.floor(g_grid_width/2)
     elseif key == 'space' then
         start_or_resume_algorithm()
+    elseif key == 'lctrl' then
+        debug.debug()
     end
 end
 
+
+-----------------------------------------------------------------------------
 -- algorithm
 
-g_a_co = nil
-g_a_current = {5, 5}
+local G_A = {
+    co = nil,
+    current = nil
+}
 
 function start_or_resume_algorithm()
-    if not g_a_co then
-        g_a_co = coroutine.create(bfs)
+    -- local result = bfs_non_recursive(15, 15, 0, 0)
+    -- local result = dfs_non_recursive(6, 6, 0, 0)
+    -- print("result=" .. tostring(result))
+    -- local finished, p, result = dfs_i(5000, 5000, 0, 0)
+    -- if finished then
+    --     print("final result: " .. tostring(result))
+    -- end
+    if not G_A.co then
+        G_A.co = coroutine.create(dfs)
+        local resumed, finished, p, result = coroutine.resume(G_A.co, 9, 5, 0, 0)
+        G_A.current = p
+        print("result=" .. tostring(result))
+        if finished then
+            print("final result: " .. tostring(result))
+            G_A.co = nil
+        end
+    else
+        local resumed, finished, p, result = coroutine.resume(G_A.co)
+        G_A.current = p
+        print("result=" .. tostring(result))
+        if finished then
+            print("final result: " .. tostring(result))
+            G_A.co = nil
+        end
     end
-
-    resumed, finished, g_a_current, result = coroutine.resume(g_a_co, 9, 5, 0, 0)
-    resumed, finished, g_a_current, result = coroutine.resume(g_a_co)
 end
 
 function draw_alorithm_info()
-    if not g_a_current then
+    if not G_A.current then
         return
     end
 
     love.graphics.setColor(1, 0, 0)
-    local c, r = g_a_current[1], g_a_current[2]
+    local c, r = G_A.current[1], G_A.current[2]
     love.graphics.ellipse("fill",
         g_scr_offset_x + (c*g_grid_width),
         g_scr_offset_y + (r*g_grid_height),
@@ -208,15 +235,18 @@ end
 
 -- (x1, y1) --> (x2, y2)
 -- (finished, coor, result)
-function bfs(x1, y1, x2, y2, marks)
+function dfs(x1, y1, x2, y2, marks)
     if not marks then
         marks = {}
     end
 
-    coroutine.yield(false, {x1, y1}, nil)
+    print(string.format("(%d, %d) -> (%d, %d)", x1, y1, x2, y2))
+
+    coroutine.yield(false, {x1, y1}, false)
 
     -- arrived
     if x1 == x2 and y1 == y2 then
+        print("arrived")
         return true, {x1, y1}, true
     end
 
@@ -226,12 +256,131 @@ function bfs(x1, y1, x2, y2, marks)
     -- end
 
     for k, v in ipairs(next_pos(x1, y1, x2, y2, marks)) do
-        if bfs(v[1], v[2], x2, y2, marks) then
+        local finished, coor, result = dfs(v[1], v[2], x2, y2, marks)
+        -- print(tostring(ret))
+        if result then
+            print("perfect")
             return true, {x1, y1}, true
         end
     end
 
     return true, {x1, y1}, false
+end
+
+function dfs_i(x1, y1, x2, y2, marks)
+    if not marks then
+        marks = {}
+    end
+
+    -- print(string.format("(%d, %d) -> (%d, %d)", x1, y1, x2, y2))
+
+    -- arrived
+    if x1 == x2 and y1 == y2 then
+        print("arrived")
+        return true, {x1, y1}, true
+    end
+
+    -- distance 1, never win
+    if (math.abs(x1 - x2) and y1 == y2) or
+       (math.abs(y1 - y2) and x1 == x2) then
+        return false
+    end
+
+    for k, v in ipairs(next_pos(x1, y1, x2, y2, marks)) do
+        local finished, coor, result = dfs_i(v[1], v[2], x2, y2, marks)
+        -- print(tostring(ret))
+        if result then
+            print("perfect")
+            return true, {x1, y1}, true
+        end
+    end
+
+    return true, {x1, y1}, false
+end
+
+function gen_key(x, y)
+    return x .. ',' .. y
+end
+
+
+function meet_condition(x1, y1, x2, y2)
+    if x1 == x2 and y1 == y2 then
+        return true
+    end
+
+    -- distance 1, never win
+    if (math.abs(x1 - x2) == 1 and y1 == y2) or
+       (math.abs(y1 - y2) == 1 and x1 == x2) then
+        return true
+    end
+
+    return false
+end
+
+
+-- (100, 100):       71,932
+-- (1000, 1000): 68,715,487
+function bfs_non_recursive(x1, y1, x2, y2)
+
+    local count = 1
+    local pointers = {}
+
+    pointers[gen_key(x1, y1)] = {x1, y1}
+    table.insert(g_marked_pointers, {x1, y1})
+
+    while not not next(pointers) do
+        for _, v in pairs(pointers) do
+            local x, y = v[1], v[2]
+            if meet_condition(x, y, x2, y2) then
+                print("meet: " .. count)
+                return true
+            end
+        end
+
+        local new_pointers = {}
+        for _, v in pairs(pointers) do
+            local x, y = v[1], v[2]
+            -- print(x, y)
+            for _, v1 in ipairs(next_pos(x, y, x2, y2)) do
+                local k = gen_key(v1[1], v1[2])
+                if not new_pointers[k] then
+                    new_pointers[k] = v1
+                    table.insert(g_marked_pointers, v1)
+                    count = count + 1
+                end
+            end
+        end
+
+        pointers = new_pointers
+    end
+
+    print("too bad: " .. count)
+    return false
+end
+
+function dfs_non_recursive(start_x, start_y, target_x, target_y)
+    print("dfs_non_recursive: " .. start_x .. ', ' .. start_y)
+
+    local pointers = { {start_x, start_y} }
+    local count = 1
+
+    while not not next(pointers) do
+        -- add pointer around
+        local new_pointers = {}
+        for k, v in ipairs(pointers) do
+            local x, y = v[1], v[2]
+            -- print(x, y)
+            for k1, v1 in ipairs(next_pos(x, y, target_x, target_y)) do
+                table.insert(new_pointers, v1)
+                count = count + 1
+            end
+        end
+
+        pointers = new_pointers
+    end
+
+    print("too bad: " .. count)
+    return false
 end
 
 
