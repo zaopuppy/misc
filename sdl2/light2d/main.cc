@@ -25,7 +25,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 
     auto surface = SDL_GetWindowSurface(window);
 
-    SDL_FillRect(surface, NULL, SDL_MapRGB(surface->format, 0xFF, 0xFF, 0xFF));
+    SDL_FillRect(surface, NULL, SDL_MapRGB(surface->format, 0xFF, 0x0, 0xFF));
 
     SDL_UpdateWindowSurface(window);
 
