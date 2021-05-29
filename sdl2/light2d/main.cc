@@ -54,11 +54,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     bool running = true;
     SDL_Event event;
     while (running) {
-        if (SDL_PollEvent(&event) == 0) {
-            LOG("bad event");
-            running = false;
-        } else {
-            if (event.type = SDL_QUIT) {
+        if (SDL_PollEvent(&event) != 0) {
+            if (event.type == SDL_QUIT) {
                 LOG("sdl quit");
                 running = false;
             }
@@ -69,7 +66,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
         SDL_UpdateWindowSurface(window);
     }
 
-    SDL_Delay(2000);
+    // SDL_Delay(2000);
 
     SDL_FreeSurface(surface);
 
