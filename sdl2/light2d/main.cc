@@ -3,15 +3,42 @@
 #include <io.h>
 #include <fcntl.h>
 
+#include <memory>
+
 #include <Windows.h>
 
 #include <SDL.h>
+#include <SDL_image.h>
 
 using namespace std;
 
 
 #define LOG(fmt, ...) printf(fmt ## "\n", __VA_ARGS__)
 // #define LOG(s) OutputDebugStringA(s)
+
+
+const int WINDOW_WIDTH = 800;
+const int WINDOW_HEIGHT = 600;
+
+
+char* create_image() {
+    char *buf = new char[WINDOW_WIDTH*WINDOW_HEIGHT*3];
+    for (int x = 0; x < WINDOW_WIDTH; ++x) {
+        for (int y = 0; y < WINDOW_HEIGHT; ++y) {
+            buf[x+y] = 0x00;
+        }
+    }
+    return buf;
+}
+
+
+void draw(SDL_Surface *surface) {
+    char *img = create_image();
+
+    // TODO
+
+    delete img;
+}
 
 
 void open_console() {
@@ -42,7 +69,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 
     SDL_Window* window = SDL_CreateWindow("light2d",
         SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-        800, 600, SDL_WINDOW_RESIZABLE);
+        WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_RESIZABLE);
 
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
 
@@ -55,13 +82,19 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     SDL_Event event;
     while (running) {
         if (SDL_PollEvent(&event) != 0) {
-            if (event.type == SDL_QUIT) {
-                LOG("sdl quit");
-                running = false;
+            switch (event.type) {
+                case SDL_QUIT: {
+                    LOG("sdl quit");
+                    running = false;
+                    break;
+                }
+                case SDL_KEYDOWN: {
+                    LOG("key down");
+                    SDL_FillRect(surface, NULL, SDL_MapRGB(surface->format, 0xFF, 0x0, 0xFF));
+                    break;
+                }
             }
         }
-
-        SDL_FillRect(surface, NULL, SDL_MapRGB(surface->format, 0xFF, 0x0, 0xFF));
 
         SDL_UpdateWindowSurface(window);
     }
