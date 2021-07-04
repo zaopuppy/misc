@@ -54,3 +54,8 @@ docs/_build/
 target/
 
 node_modules
+
+.idea/
+*.iml
+
+
