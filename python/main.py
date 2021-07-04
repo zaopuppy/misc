@@ -1,16 +1,58 @@
-# This is a sample Python script.
-
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+#!/usr/bin/env python3
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+from m5stack import *
+from m5ui import *
+from uiflow import *
+
+import time
+
+LOG_FILE_NAME = "record.log"
+g_log_fp = None
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+def log(msg: str):
+  global LOG_FILE_NAME, g_log_fp
+  if not g_log_fp:
+    g_log_fp = open(LOG_FILE_NAME, "a", encoding="utf-8")
+  g_log_fp.write(msg + '\n')
+  g_log_fp.flush()
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+
+def date_str_sec():
+  return ""
+  # return time.tick_ms()
+
+
+setScreenColor(0x222222)
+
+
+label0 = M5TextBox(0, 113, "PRESS A for beginning, B for ending", lcd.FONT_Default,0xFFFFFF, rotate=0)
+title0 = M5Title(title="^_^", x=0, fgcolor=0xFFFFFF, bgcolor=0x0000FF)
+
+
+def buttonA_wasPressed():
+  # global params
+  speaker.sing(448, 1/2)
+  msg = date_str_sec() + ": begin"
+  label0.setText(msg)
+
+btnA.wasPressed(buttonA_wasPressed)
+
+def buttonB_wasPressed():
+  # global params
+  speaker.sing(494, 1/2)
+  msg = date_str_sec() + ": end"
+  label0.setText(msg)
+
+btnB.wasPressed(buttonB_wasPressed)
+
+def buttonC_wasPressed():
+  # global params
+  speaker.sing(262, 1/2)
+
+
+btnC.wasPressed(buttonC_wasPressed)
+
+
+
