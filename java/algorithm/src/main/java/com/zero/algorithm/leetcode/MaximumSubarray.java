@@ -1,11 +1,6 @@
 package com.zero.algorithm.leetcode;
 
 
-import com.sun.deploy.util.ArrayUtil;
-
-import java.util.Arrays;
-import java.util.Collections;
-
 /**
  * https://leetcode-cn.com/problems/maximum-subarray/
  *
